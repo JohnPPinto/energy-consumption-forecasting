@@ -1,4 +1,5 @@
 numpy
 pandas
 seaborn
--e .
+python-dotenv
+#-e .
