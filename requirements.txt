@@ -2,4 +2,6 @@ numpy
 pandas
 seaborn
 python-dotenv
+requests
+pydantic
 #-e .

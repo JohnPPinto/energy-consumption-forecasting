@@ -5,22 +5,41 @@ from typing import Optional
 from dotenv import load_dotenv
 
 
-def get_env_var(env_path: Optional[str | Path] = None) -> dict:
+def get_env_var(
+    key: str,
+    default_value: str = None,
+    env_path: Optional[str | Path] = None,
+) -> Optional[str]:
     """
-    Loads the environment variables and returns in dict.
+    Loads the environment variables and returns the value for the requested key.
 
-    Parametrs
-    ---------
-    env_path: Optional[str | Path], default=None
+    Parameters
+    ----------
+    key: str
+        The key of the requested environment variable.
+
+    default_value: str, default=None
+        The value to be returned if environment variable is not found.
+
+    env_path: str or Path or None, default=None
         A path to the .env file.
 
     Returns
     -------
-        A dict containing all the env variables.
+    value: str or None
+        The value of the environment variable that is requested.
     """
     if isinstance(env_path, str):
         env_path = Path(env_path)
 
-    load_dotenv(dotenv_path=env_path, override=True)
+    load_dotenv(
+        dotenv_path=env_path,
+        override=True,
+    )
 
-    return dict(os.environ)
+    if default_value is None:
+        value = os.getenv(key=key)
+    else:
+        value = os.getenv(key=key, default=default_value)
+
+    return value
