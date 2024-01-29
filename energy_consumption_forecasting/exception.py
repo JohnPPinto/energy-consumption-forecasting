@@ -1,4 +1,6 @@
+import logging
 import sys
+from functools import wraps
 
 
 class CustomExceptionMessage(Exception):
@@ -37,3 +39,24 @@ class CustomExceptionMessage(Exception):
         )
 
         return error_message
+
+
+def log_exception(logger: logging.Logger):
+    """
+    A decorator for catching exception and logging them in the log file.
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except:
+                issue = "exception in " + func.__name__ + "\n"
+                issue = issue + "==========================\n"
+                logger.exception(issue)
+                raise
+
+        return wrapper
+
+    return decorator

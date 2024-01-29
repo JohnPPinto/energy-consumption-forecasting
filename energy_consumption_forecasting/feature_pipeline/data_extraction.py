@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 from pydantic import HttpUrl, validate_call
 
-from energy_consumption_forecasting.exception import CustomExceptionMessage
+from energy_consumption_forecasting.exception import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.utils import get_env_var
 
@@ -16,6 +16,7 @@ logger = get_logger(name=Path(__file__).name)
 ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
 
 
+@log_exception(logger=logger)
 @validate_call
 def get_extraction_datetime(
     start_date_time: datetime.datetime,
@@ -58,6 +59,7 @@ def get_extraction_datetime(
     return start_date_time, end_date_time
 
 
+@log_exception(logger=logger)
 @validate_call
 def extract_dataset_from_api(
     start_date_time: datetime.datetime,
@@ -115,13 +117,9 @@ def extract_dataset_from_api(
     sort = "HourUTC" if sort_data_asc else "HourUTC%20DESC"
 
     # Formatting the dates for the API parameters
-    try:
-        start, end = get_extraction_datetime(
-            start_date_time=start_date_time, end_date_time=end_date_time
-        )
-    except Exception as e:
-        logger.error(msg=e)
-        raise CustomExceptionMessage(error=e)
+    start, end = get_extraction_datetime(
+        start_date_time=start_date_time, end_date_time=end_date_time
+    )
 
     # Creating the parameters for the API request
     params = {
@@ -150,16 +148,9 @@ def extract_dataset_from_api(
             f"received with status code: {meta_response.status_code}."
         )
 
-    try:
+        # Getting the data and metadata in json format for further processing
         json_data = data_response.json()
         json_meta = meta_response.json()
-    except JSONDecodeError:
-        logger.error(
-            f"Error status code for Data: {data_response.status_code} and "
-            f"meta: {meta_response.status_code} while decoding the response "
-            "into JSON format, recheck the get request method."
-        )
-        return None
 
     # Getting the dataset from the JSON data and converting into dataframe
     json_data = json_data.get("records")
