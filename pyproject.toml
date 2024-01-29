@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "energy-consumption-forecasting"
+version = "0.1.0"
+description = "A Machine Learning project on Denmark's Energy Consumption."
+authors = ["John Pinto <66053973+JohnPPinto@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+python-dotenv = "^1.0.1"
+numpy = "^1.26.3"
+pandas = "^2.2.0"
+seaborn = "^0.13.2"
+pydantic = "^2.5.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+black = "^24.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

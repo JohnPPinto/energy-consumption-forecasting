@@ -8,9 +8,9 @@ import pandas as pd
 import requests
 from pydantic import HttpUrl, validate_call
 
-from src.exception import CustomExceptionMessage
-from src.logger import get_logger
-from src.utils import get_env_var
+from energy_consumption_forecasting.exception import CustomExceptionMessage
+from energy_consumption_forecasting.logger import get_logger
+from energy_consumption_forecasting.utils import get_env_var
 
 logger = get_logger(name=Path(__file__).name)
 ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
