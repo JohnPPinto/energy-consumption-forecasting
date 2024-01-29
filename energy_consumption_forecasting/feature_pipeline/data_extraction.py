@@ -4,8 +4,8 @@ from json import JSONDecodeError, dump
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
+import httpx
 import pandas as pd
-import requests
 from pydantic import HttpUrl, validate_call
 
 from energy_consumption_forecasting.exception import CustomExceptionMessage
@@ -132,14 +132,14 @@ def extract_dataset_from_api(
     }
 
     # Calling the API requests for dataset and metadata
-    with requests.Session() as session:
+    with httpx.Client() as client:
         logger.info(
             f"Sending API get request to: {data_url} and {meta_url} "
             f"with parameters: {params}."
         )
 
-        data_response = session.get(url=data_url, params=params)
-        meta_response = session.get(url=meta_url)
+        data_response = client.get(url=data_url, params=params, timeout=None)
+        meta_response = client.get(url=meta_url, timeout=None)
 
         logger.info(
             "Connection to the dataset API is done and response "
@@ -166,7 +166,7 @@ def extract_dataset_from_api(
     dataset_df = pd.DataFrame.from_records(json_data)
 
     if save_dataset_metadata:
-        data_dir = ROOT_DIRPATH / "data"
+        data_dir = ROOT_DIRPATH / "data" / "raw_data"
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir)
 
