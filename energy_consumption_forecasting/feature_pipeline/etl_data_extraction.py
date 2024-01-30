@@ -1,6 +1,6 @@
 import datetime
 import os
-from json import JSONDecodeError, dump
+from json import dump
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
@@ -46,7 +46,6 @@ def get_extraction_datetime(
 
     # Checking if end date is greater than start date
     if start_date_time > end_date_time:
-        logger.error("End date needs to be greater than the start date")
         raise Exception("End date needs to be greater than the start date")
 
     # Converting the date format for API query and
