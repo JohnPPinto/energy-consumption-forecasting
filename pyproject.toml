@@ -16,6 +16,7 @@ pydantic = "^2.5.3"
 httpx = "^0.26.0"
 pyarrow = "^15.0.0"
 matplotlib = "^3.8.2"
+great-expectations = "^0.18.8"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

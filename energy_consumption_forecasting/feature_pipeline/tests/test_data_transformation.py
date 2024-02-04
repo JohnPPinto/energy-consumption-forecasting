@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -33,7 +35,7 @@ def get_dataframe():
             773,
             766,
             250,
-            np.nan,
+            np.NaN,
         ],
         "Branche": [
             "Offentligt",
@@ -59,6 +61,7 @@ def test_clean_dataframe(get_dataframe):
     In this test the dataframe is cleaned and returned as pandas dataframe.
     """
 
+    assert get_dataframe.shape == (5, 5)
     result_df = clean_dataframe(dataframe=get_dataframe)
     assert isinstance(result_df, pd.DataFrame)
     assert result_df.shape == (3, 5)
@@ -132,7 +135,10 @@ def test_casting_features(get_dataframe):
     result_df = casting_features(dataframe=df)
 
     assert isinstance(result_df, pd.DataFrame)
+
     assert isinstance(result_df.datetime_dk.dtype, type(np.dtype("datetime64[ns]")))
+    assert bool(datetime.strftime(result_df.datetime_dk[2], "%Y-%m-%d %H:%M:%S"))
+
     assert isinstance(result_df.municipality_num.dtype, type(np.dtype("int32")))
     assert isinstance(result_df.branch.dtype, pd.StringDtype)
     assert isinstance(result_df.consumption_kwh.dtype, type(np.dtype("float64")))
