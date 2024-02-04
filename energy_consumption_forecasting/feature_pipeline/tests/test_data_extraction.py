@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from energy_consumption_forecasting.feature_pipeline.etl_data_extraction import (
+from energy_consumption_forecasting.feature_pipeline.data_extraction import (
     extract_dataset_from_api,
     get_extraction_datetime,
 )

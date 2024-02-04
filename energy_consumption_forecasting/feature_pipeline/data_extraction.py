@@ -104,11 +104,11 @@ def extract_dataset_from_api(
 
     Returns
     -------
-    Optional[Tuple[pd.DataFrame, Dict[str, Any] | Path, Path]]
+    pd.DataFrame, Dict[str, Any] or Path, Path
         A tuple containing the dataset in pandas DataFrame and a Dict containing
         the metadata of the dataset.
         If save_dataset_metadata parameter is True, then filepath for both the
-        data is returned as string.
+        data is returned as string along with the DataFrame and Dict.
     """
 
     data_url = f"{base_url}{dataset_name}?"
