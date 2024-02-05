@@ -10,7 +10,7 @@ from pydantic import HttpUrl, validate_call
 
 from energy_consumption_forecasting.exception import log_exception
 from energy_consumption_forecasting.logger import get_logger
-from energy_consumption_forecasting.utils import get_env_var
+from energy_consumption_forecasting.utils import get_env_var, save_json_data
 
 logger = get_logger(name=Path(__file__).name)
 ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
@@ -177,8 +177,7 @@ def extract_dataset_from_api(
         # Saving the dataset as a csv file and
         # meta data as JSON file in data directory
         dataset_df.to_csv(path_or_buf=data_filepath, index=False)
-        with open(file=meta_filepath, mode="w") as file:
-            dump(obj=json_meta, fp=file)
+        save_json_data(data=json_meta, filepath=meta_filepath)
 
         logger.info(f'Dataset has been saved in csv file "{data_filepath.name}".')
         logger.info(f'Metadata has been saved in json file "{meta_filepath.name}".')

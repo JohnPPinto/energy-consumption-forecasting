@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from typing import Optional
@@ -43,3 +44,30 @@ def get_env_var(
         value = os.getenv(key=key, default=default_value)
 
     return value
+
+
+def save_json_data(data: dict, filepath: str | Path):
+    """
+    Saves a dictionary object as a JSON file.
+
+    Parameters
+    ----------
+    data: dict
+        The dict object that needs to saved as a JSON file.
+
+    filepath: str or path
+        A file path as a string or pathlib.Path object, to save the data at the location.
+        Name of the file must be with the extension of ".json".
+    """
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+
+    if not filepath.suffix == ".json":
+        raise Exception(
+            'Filepath needs to have a extension of .json: "{filepath}", '
+            "but was not provided."
+        )
+
+    # Saving the data as a json file
+    with open(file=filepath, mode="w") as file:
+        json.dump(data, file)

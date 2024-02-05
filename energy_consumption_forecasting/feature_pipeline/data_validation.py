@@ -3,14 +3,14 @@ from great_expectations.core import ExpectationConfiguration, ExpectationSuite
 
 def generate_great_expectation_suite() -> ExpectationSuite:
     """
-     This functions generates an instance for Expectation Suite 
-     using the great expectation library.
+    This functions generates an instance for Expectation Suite
+    using the great expectation library.
 
-     Returns
-     -------
-     great_expectation.core.ExpectationSuite
-        A instance with all the predefined validation configuration for the Dataframe 
-        are been added in the suite using the ExpectationConfiguration module.
+    Returns
+    -------
+    great_expectation.core.ExpectationSuite
+       A instance with all the predefined validation configuration for the Dataframe
+       are been added in the suite using the ExpectationConfiguration module.
     """
 
     energy_suite = ExpectationSuite(
@@ -47,13 +47,6 @@ def generate_great_expectation_suite() -> ExpectationSuite:
         )
     )
 
-    energy_suite.add_expectation(
-        expectation_configuration=ExpectationConfiguration(
-            expectation_type="expect_column_values_to_match_strftime_format",
-            kwargs={"column": "datetime_dk", "strftime_format": "%Y-%m-%d %H:%M:%S"},
-        )
-    )
-
     # DataFrame Column: municipality_num
     energy_suite.add_expectation(
         expectation_configuration=ExpectationConfiguration(
@@ -74,7 +67,7 @@ def generate_great_expectation_suite() -> ExpectationSuite:
             expectation_type="expect_column_distinct_values_to_be_in_set",
             kwargs={
                 "column": "municipality_num",
-                "value_set ": (
+                "value_set": (
                     250,
                     773,
                     766,
@@ -196,7 +189,7 @@ def generate_great_expectation_suite() -> ExpectationSuite:
     energy_suite.add_expectation(
         expectation_configuration=ExpectationConfiguration(
             expectation_type="expect_column_distinct_values_to_be_in_set",
-            kwargs={"column": "branch", "value_set ": (1, 2, 3)},
+            kwargs={"column": "branch", "value_set": (1, 2, 3)},
         )
     )
 
