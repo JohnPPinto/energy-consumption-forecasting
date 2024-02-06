@@ -69,5 +69,5 @@ def save_json_data(data: dict, filepath: str | Path):
         )
 
     # Saving the data as a json file
-    with open(file=filepath, mode="w") as file:
+    with open(file=filepath, mode="w", encoding="utf-8") as file:
         json.dump(data, file)
