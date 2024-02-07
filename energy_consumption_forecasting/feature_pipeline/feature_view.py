@@ -12,9 +12,9 @@ logger = get_logger(name=Path(__file__).name)
 
 
 def create_feature_view(
-    start_datetime: Optional[datetime.datetime] = None,
-    end_datetime: Optional[datetime.datetime] = None,
-    feature_group_version: Optional[int] = None,
+    start_datetime: datetime.datetime,
+    end_datetime: datetime.datetime,
+    feature_group_version: int,
 ) -> Dict:
     """ """
 

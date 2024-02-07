@@ -168,7 +168,7 @@ def loading_data_to_hopsworks(
         )
 
         filepath = save_data_offline_dirpath / (
-            f"{energy_feature_project.name}_v{hopsworks_feature_group_version}_"
+            f"{energy_feature_group.name}_v{hopsworks_feature_group_version}_"
             f"{start_date}_{end_date}.csv"
         )
 

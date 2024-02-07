@@ -113,6 +113,12 @@ def run_feature_pipeline(
         .replace('}"', "}")
     )
 
+    # Adding data extraction start and end datetime in metadata
+    feature_store_metadata["data_extraction_start_datetime"] = str(start_date_time)
+    feature_store_metadata["data_extraction_end_datetime"] = str(
+        end_date_time + datetime.timedelta(days=1)
+    )
+
     # Saving the provided feature store metadata in a local directory as a json file
     csv_filepath = csv_filepath.name.split("_")[:4]
     json_filepath = DATA_DIRPATH / f"{'_'.join(csv_filepath)}_metadata.json"
@@ -125,7 +131,7 @@ def run_feature_pipeline(
 
 if __name__ == "__main__":
 
-    start_date = datetime.datetime(2023, 7, 1)
+    start_date = datetime.datetime(2021, 1, 1)
     end_date = datetime.datetime(2023, 12, 31)
     rename_col = {
         "HourDK": "datetime_dk",
