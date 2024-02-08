@@ -8,7 +8,7 @@ from great_expectations.core import ExpectationSuite
 from hsfs.feature_group import FeatureGroup
 from pydantic import validate_call
 
-from energy_consumption_forecasting.exception import log_exception
+from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.utils import get_env_var
 

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import validate_call
 
-from energy_consumption_forecasting.exception import log_exception
+from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.feature_pipeline import (
     data_extraction,
     data_loading,

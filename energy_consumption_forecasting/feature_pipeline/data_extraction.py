@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 from pydantic import HttpUrl, validate_call
 
-from energy_consumption_forecasting.exception import log_exception
+from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.utils import get_env_var, save_json_data
 

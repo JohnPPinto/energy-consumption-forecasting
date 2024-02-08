@@ -1,11 +1,12 @@
 import logging
 import sys
+import traceback
 from functools import wraps
 
 
 class CustomExceptionMessage(Exception):
     """
-    This function provides error message with additional details.
+    This class provides custom exception message.
 
     Parameters
     ----------
@@ -16,26 +17,27 @@ class CustomExceptionMessage(Exception):
     -------
     error_message: str
         A string containing the script file name, error line number and the
-        error message.
+        exception message.
     """
 
-    def __init__(self, error: Exception):
-        super().__init__(error)
-        self.error = error
+    def __init__(self, exception_msg: Exception):
+        super().__init__(exception_msg)
+        self.exception_msg = exception_msg
         self.error_message = self.error_message_detail()
 
     def __str__(self) -> str:
         return self.error_message
 
     def error_message_detail(self) -> str:
-        _, _, exception_traceback = sys.exc_info()
-        file_name = exception_traceback.tb_frame.f_code.co_filename
-        line_number = exception_traceback.tb_lineno
+        _, _, exc_traceback = sys.exc_info()
+        file_name = exc_traceback.tb_frame.f_code.co_filename
+        line_number = exc_traceback.tb_lineno
 
+        traceback.print_exc()
         error_message = (
-            "[Error] A error occurred in python module: "
-            f"[{file_name}] at line number: [{line_number}] "
-            f"with error message: [{self.error}]."
+            "\n[Exception] A exception occurred in python module: "
+            f"[{file_name}] at line number: [{line_number}] with error "
+            f"message:\n {type(self.exception_msg).__name__} - {self.exception_msg}"
         )
 
         return error_message

@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 from pydantic import validate_call
 
-from energy_consumption_forecasting.exception import log_exception
+from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 
 logger = get_logger(name=Path(__file__).name)
