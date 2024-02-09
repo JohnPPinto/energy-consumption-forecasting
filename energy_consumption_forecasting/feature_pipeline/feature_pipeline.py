@@ -21,7 +21,7 @@ DATA_DIRPATH = ROOT_DIRPATH / "data" / "processed_data"
 
 
 @log_exception(logger=logger)
-@validate_call(config=dict(arbitrary_types_allowed=True))
+@validate_call
 def run_feature_pipeline(
     start_date_time: datetime.datetime,
     end_date_time: datetime.datetime,

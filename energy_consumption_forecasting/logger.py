@@ -1,14 +1,17 @@
 import logging
 import os
 from datetime import datetime
+from pathlib import Path
 
+from energy_consumption_forecasting.utils import get_env_var
+
+ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
+LOG_PATH = ROOT_DIRPATH / "logs"
 FILE_NAME = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
-LOG_PATH = os.path.join(os.getcwd(), "logs")
+LOG_FILENAME = LOG_PATH / FILE_NAME
 
 if not os.path.isdir(LOG_PATH):
     os.makedirs(name=LOG_PATH)
-
-LOG_FILENAME = os.path.join(LOG_PATH, FILE_NAME)
 
 
 def get_logger(name: str = "") -> logging.Logger:

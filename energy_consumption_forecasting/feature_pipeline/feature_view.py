@@ -1,9 +1,9 @@
 import datetime
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, Tuple
 
-import hopsworks
+from pydantic import validate_call
 
 from energy_consumption_forecasting.exceptions import (
     CustomExceptionMessage,
@@ -16,7 +16,11 @@ logger = get_logger(name=Path(__file__).name)
 ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
 DATA_DIRPATH = ROOT_DIRPATH / "data" / "processed_data"
 
+import hopsworks
 
+
+@log_exception(logger=logger)
+@validate_call
 def create_feature_view(
     start_datetime: datetime.datetime,
     end_datetime: datetime.datetime,
@@ -24,8 +28,41 @@ def create_feature_view(
     feature_group_name: str = "denmark_energy_consumption_group",
     feature_views_name: str = "denmark_energy_consumption_view",
     feature_views_description: str = "Denmark's energy consumption forecasting model training view",
-) -> Dict:
-    """ """
+) -> Tuple[Dict[Any, Any], Path]:
+    """
+    This function creates a new feature view and training dataset on provided
+    datetime and feature group data.
+
+    Parameters
+    ----------
+    start_datetime: datetime.datetime
+        A starting date and time for extracting the dataframe from feature group
+        in datatype of datetime.datetime.
+
+    end_datetime: datetime.datetime
+        A ending date and time for extracting the dataframe from feature group
+        in datatype of datetime.datetime.
+
+    feature_group_version: int, default=1
+         A version number in int type for getting the specific feature group.
+
+    feature_group_name: str, default="denmark_energy_consumption_group"
+        A feature group name in string type for getting the specific feature group.
+
+    feature_views_name: str, default="denmark_energy_consumption_view"
+        A feature view name in string type for naming the newly created view.
+
+    feature_views_description: str, default="Denmark's energy consumption forecasting model training view"
+        A feature view description in string format for setting the description of the
+        newly created view.
+
+    Returns
+    -------
+    Dict and pathlib.Path
+        After creating the feature view and saving the metadata as a JSON file in the
+        local directory, the function returns the metadata as a Dict object and the
+        file path of the json file.
+    """
 
     # Connecting to the hopsworks feature store using the project API
     energy_project = hopsworks.login(
@@ -49,7 +86,7 @@ def create_feature_view(
         print(CustomExceptionMessage(exception_msg=e))
         logger.info(
             "Feature store could not get the feature view: "
-            '"denmark_energy_consumption_view" in the feature store.'
+            f'"{feature_views_name}" in the feature store.'
         )
 
         energy_feature_views = []
@@ -65,6 +102,10 @@ def create_feature_view(
                 view.delete()
             except Exception as e:
                 print(CustomExceptionMessage(e))
+
+            logger.info(
+                f'Deleting feature view for name "{feature_views_name}": {view}'
+            )
 
     # Creating feature view from the provided feature group
     energy_feature_group = feature_store.get_feature_group(
@@ -91,7 +132,7 @@ def create_feature_view(
         data_format="csv",
         start_time=start_datetime,
         end_time=end_datetime,
-        write_option={"wait_for_job": True},
+        write_options={"wait_for_job": True},
         coalesce=False,
     )
 
@@ -108,7 +149,22 @@ def create_feature_view(
     save_json_data(data=energy_feature_view_metadata, filepath=json_filepath)
 
     logger.info(
-        f"Feature view {feature_views_name} and training dataset is been created."
+        f"Feature view: '{feature_views_name}' and training dataset is been created and "
+        f"the metadata is saved in the local directory as a JSON file: {json_filepath}."
     )
 
-    return energy_feature_view_metadata
+    return energy_feature_view_metadata, json_filepath
+
+
+if __name__ == "__main__":
+
+    # Creating a feature view dataset of latest 6 month duration
+    start_datetime = datetime.datetime(2023, 7, 1)
+    end_datetime = datetime.datetime(2024, 1, 1)  # Till the final hour of the 31st Dec
+
+    _, filepath = create_feature_view(
+        start_datetime=start_datetime,
+        end_datetime=end_datetime,
+    )
+
+    print(f"\nLocally saved feature view metadata, filepath: {filepath}")
