@@ -112,9 +112,9 @@ def loading_data_to_hopsworks(
         {
             "name": "branch",
             "description": (
-                "All measurement id's related to a CVR number are labeled as 'Erhverv'"
-                "except those that belong to 'Office, admin, which are labeled "
-                "'Offentligt'. All other measurement id's are labeled 'Privat'."
+                "All measurement id's related to a CVR number are labeled as 2 - 'Erhverv'"
+                "except those that belong to 'Office, admin, which are labeled 1 - "
+                "'Offentligt'. All other measurement id's are labeled 3 - 'Privat'."
             ),
         },
         {

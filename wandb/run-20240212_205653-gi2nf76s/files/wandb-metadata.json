@@ -1,0 +1,53 @@
+{
+    "os": "Windows-10-10.0.22631-SP0",
+    "python": "3.11.7",
+    "heartbeatAt": "2024-02-12T15:26:56.916493",
+    "startedAt": "2024-02-12T15:26:53.285948",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "d:\\projects\\energy-consumption-forecasting\\energy_consumption_forecasting\\training_pipeline\\data_preprocessing.py",
+    "codePathLocal": "energy_consumption_forecasting\\training_pipeline\\data_preprocessing.py",
+    "codePath": "energy_consumption_forecasting\\training_pipeline\\data_preprocessing.py",
+    "git": {
+        "remote": "https://github.com/JohnPPinto/energy-consumption-forecasting.git",
+        "commit": "f8b73f1859a8ba937b2239b35334e8ddd46eb94b"
+    },
+    "email": "66053973+JohnPPinto@users.noreply.github.com",
+    "root": "D:/projects/energy-consumption-forecasting",
+    "host": "John-PC",
+    "username": "pinto",
+    "executable": "d:\\projects\\energy-consumption-forecasting\\.venv\\Scripts\\python.exe",
+    "cpu_count": 12,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 1700.0,
+        "min": 0.0,
+        "max": 1700.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1700.0,
+            "min": 0.0,
+            "max": 1700.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 249.99999618530273,
+            "used": 109.44290161132812
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 2050",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 2050",
+            "memory_total": 4294967296
+        }
+    ],
+    "memory": {
+        "total": 15.711418151855469
+    }
+}
