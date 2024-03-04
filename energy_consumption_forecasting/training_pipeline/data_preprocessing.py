@@ -55,7 +55,9 @@ def prepare_data(
 
     # Creating a time-series train test split
     y_train, y_test, X_train, X_test = temporal_train_test_split(
-        y=y, X=X, test_size=forecasting_horizon
+        y=y.sort_index(),
+        X=X.sort_index(),
+        test_size=forecasting_horizon,
     )
 
     return y_train, y_test, X_train, X_test
@@ -160,7 +162,7 @@ def load_prepare_dataset_from_feature_store(
         run.finish()
 
     # Preparing the data by splitting it into train and test set
-    # Logging the metadata for data preparation in previous wandb artifact.
+    # Logging the metadata for data preparation in wandb artifact.
     with init_wandb_run(
         run_name="train_test_split",
         job_type="prepare_dataset",

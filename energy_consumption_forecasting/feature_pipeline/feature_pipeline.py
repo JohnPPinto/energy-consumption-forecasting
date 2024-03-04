@@ -1,7 +1,8 @@
+import argparse
 import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from pydantic import validate_call
 
@@ -25,8 +26,13 @@ DATA_DIRPATH = ROOT_DIRPATH / "data" / "processed_data"
 def run_feature_pipeline(
     start_date_time: datetime.datetime,
     end_date_time: datetime.datetime,
-    drop_features: Optional[List[Any]],
     rename_features: Dict[Any, Any],
+    drop_features: Optional[List[Any]] = ["HourUTC"],
+    check_features_duplicates: List[Any] = [
+        "municipality_num",
+        "branch",
+        "datetime_dk",
+    ],
 ) -> Tuple[Dict[Any, Any], Path]:
     """
     This functions runs the feature pipeline process i.e. ETL - Extract, Transform and
@@ -44,11 +50,14 @@ def run_feature_pipeline(
         A ending date and time for extracting the data in datatype of
         datetime.datetime.
 
-    drop_features: Optional[List[Any]]
-        A list containing column names for dropping it from the DataFrame.
-
     rename_features: Dict[Any, Any]
         A dict containing existing column names as keys and new column names as values.
+
+    drop_features: Optional[List[Any]], default=["HourUTC"]
+        A list containing column names for dropping it from the DataFrame.
+
+    check_features_duplicate: List[Any], default=["municipality_num", "branch", "datetime_dk"]
+        A list containing column names for checking duplication and dropping the rows.
 
     Returns
     -------
@@ -70,16 +79,17 @@ def run_feature_pipeline(
     # Transforming the dataframe
     logger.info("Starting dataframe transformation process.")
 
-    dataframe = data_transformation.clean_dataframe(
-        dataframe=dataframe,
-        drop_columns=drop_features,
-    )
     dataframe = data_transformation.rename_features(
         dataframe=dataframe,
         rename_columns_dict=rename_features,
     )
     dataframe = data_transformation.casting_features(dataframe=dataframe)
     dataframe = data_transformation.feature_engineering(dataframe=dataframe)
+    dataframe = data_transformation.clean_dataframe(
+        dataframe=dataframe,
+        drop_columns=drop_features,
+        check_columns_duplicates=check_features_duplicates,
+    )
 
     logger.info("Data transformation process is successfully completed.\n")
 
@@ -131,19 +141,84 @@ def run_feature_pipeline(
 
 if __name__ == "__main__":
 
-    start_date = datetime.datetime(2021, 1, 1)
-    end_date = datetime.datetime(2023, 12, 31)
-    rename_col = {
-        "HourDK": "datetime_dk",
-        "MunicipalityNo": "municipality_num",
-        "Branche": "branch",
-        "ConsumptionkWh": "consumption_kwh",
-    }
+    class ParseKVAction(argparse.Action):
+        def __call__(
+            self,
+            parser: argparse.ArgumentParser,
+            namespace: argparse.Namespace,
+            values: str | Sequence[Any] | None,
+            option_string: str | None = None,
+        ) -> None:
+            setattr(namespace, self.dest, dict())
+            for i in values:
+                try:
+                    key, value = i.split("=")
+                    getattr(namespace, self.dest)[key] = value
+                except ValueError as e:
+                    message = f"\nTraceback: {e}"
+                    message += f"\nError on {e}, format should be in 'key=value."
+                    raise argparse.ArgumentError(self, str(message))
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-s",
+        "--start_datetime",
+        type=datetime.datetime.fromisoformat,
+        default="2021-01-01",
+        help="Starting date for extraction in format: YYYY-MM-DD HH:MM:SS",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--end_datetime",
+        type=datetime.datetime.fromisoformat,
+        default="2023-12-31",
+        help="Ending date for extraction in format: YYYY-MM-DD HH:MM:SS",
+    )
+
+    parser.add_argument(
+        "-r",
+        "--rename_features",
+        nargs="+",
+        action=ParseKVAction,
+        default={
+            "HourDK": "datetime_dk",
+            "MunicipalityNo": "municipality_num",
+            "Branche": "branch",
+            "ConsumptionkWh": "consumption_kwh",
+        },
+        help="Rename the features to transform the dataframe, "
+        "format needs to be in CURRENT_NAME=NEW_NAME ...",
+        metavar="CURRENT_NAME=NEW_NAME",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--drop_features",
+        nargs="+",
+        default=["HourUTC"],
+        help="Drop the features to transform the dataframe, "
+        "format needs to be in NAME_1 NAME_2 NAME_3 ...",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--check_duplicates",
+        nargs="+",
+        default=["municipality_num", "branch", "datetime_dk"],
+        help="Provide feature names to check for duplicate data and "
+        "clean the dataframe, format needs to be in NAME_1 NAME_2 NAME_3 ...",
+    )
+
+    args = parser.parse_args()
+
     _, filepath = run_feature_pipeline(
-        start_date_time=start_date,
-        end_date_time=end_date,
-        drop_features=["HourUTC"],
-        rename_features=rename_col,
+        start_date_time=args.start_datetime,
+        end_date_time=args.end_datetime,
+        rename_features=args.rename_features,
+        drop_features=args.drop_features,
+        check_features_duplicates=args.check_duplicates,
     )
 
     print(f"\nLocally saved metadata filepath: {filepath}")

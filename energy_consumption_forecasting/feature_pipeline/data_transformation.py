@@ -14,6 +14,7 @@ logger = get_logger(name=Path(__file__).name)
 @validate_call(config=dict(arbitrary_types_allowed=True))
 def clean_dataframe(
     dataframe: pd.DataFrame,
+    check_columns_duplicates: List[Any],
     drop_columns: Optional[List[Any]] = None,
 ) -> pd.DataFrame:
     """
@@ -25,6 +26,9 @@ def clean_dataframe(
     dataframe: pd.DataFrame
         The pandas dataframe as a input for transformation.
 
+    check_columns_duplicate: List[Any]
+        A list containing column names for checking duplication and dropping the rows.
+
     drop_columns: List[Any] or None, default=None
         A list containing column names for dropping it from the DataFrame.
 
@@ -35,9 +39,8 @@ def clean_dataframe(
     """
     dataset_df = dataframe.copy()
 
-    # Cleaning the NaN and duplicate values in the dataframe
+    # Cleaning the NaN values
     dataset_df.dropna(inplace=True)
-    dataset_df.drop_duplicates(inplace=True)
 
     # Dropping unwanted columns
     if drop_columns is not None:
@@ -51,6 +54,13 @@ def clean_dataframe(
             dataset_df.drop(columns=drop_columns, inplace=True)
         else:
             raise Exception("Empty list argument is not allowed in drop_columns.")
+
+    # Dropping duplicate values in the dataframe
+    dataset_df.drop_duplicates(
+        subset=check_columns_duplicates,
+        ignore_index=True,
+        inplace=True,
+    )
 
     return dataset_df
 

@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import json
 from pathlib import Path
@@ -158,13 +159,61 @@ def create_feature_view(
 
 if __name__ == "__main__":
 
-    # Creating a feature view dataset of latest 6 month duration
-    start_datetime = datetime.datetime(2023, 7, 1)
-    end_datetime = datetime.datetime(2024, 1, 1)  # Till the final hour of the 31st Dec
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-s",
+        "--start_datetime",
+        type=datetime.datetime.fromisoformat,
+        default="2021-01-01",
+        help="Starting date for extraction in format: YYYY-MM-DD HH:MM:SS",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--end_datetime",
+        type=datetime.datetime.fromisoformat,
+        default="2024-01-01",
+        help="Ending date for extraction in format: YYYY-MM-DD HH:MM:SS",
+    )
+
+    parser.add_argument(
+        "--group_version",
+        type=int,
+        default=1,
+        help="Feature group version, needs to be in integer format.",
+    )
+
+    parser.add_argument(
+        "--group_name",
+        type=str,
+        default="denmark_energy_consumption_group",
+        help="Feature group name, needs to be in string format.",
+    )
+
+    parser.add_argument(
+        "--views_name",
+        type=str,
+        default="denmark_energy_consumption_view",
+        help="Feature view name within the feature group, needs to be in string format.",
+    )
+
+    parser.add_argument(
+        "--views_desc",
+        type=str,
+        default="Denmark's energy consumption forecasting model training view",
+        help="Description for the feature view, needs to be in string format.",
+    )
+
+    args = parser.parse_args()
 
     _, filepath = create_feature_view(
-        start_datetime=start_datetime,
-        end_datetime=end_datetime,
+        start_datetime=args.start_datetime,
+        end_datetime=args.end_datetime,
+        feature_group_version=args.group_version,
+        feature_group_name=args.group_name,
+        feature_views_name=args.views_name,
+        feature_views_description=args.views_desc,
     )
 
     print(f"\nLocally saved feature view metadata, filepath: {filepath}")

@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 # Directories
-data/
+data/raw_data/
+data/processed_data
