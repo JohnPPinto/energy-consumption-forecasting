@@ -62,10 +62,3 @@ def log_exception(logger: logging.Logger):
         return wrapper
 
     return decorator
-
-
-from pathlib import Path
-
-from energy_consumption_forecasting.logger import get_logger
-
-logger = get_logger(name=Path(__file__).name)

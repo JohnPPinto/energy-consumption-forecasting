@@ -64,7 +64,7 @@ def save_json_data(data: dict, filepath: str | Path):
 
     if not filepath.suffix == ".json":
         raise Exception(
-            'Filepath needs to have a extension of .json: "{filepath}", '
+            f'Filepath needs to have a extension of .json: "{filepath}", '
             "but was not provided."
         )
 

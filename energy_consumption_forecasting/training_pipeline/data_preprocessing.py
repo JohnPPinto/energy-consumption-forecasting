@@ -65,10 +65,10 @@ def prepare_data(
 
 @log_exception(logger=logger)
 @validate_call
-def load_prepare_dataset_from_feature_store(
+def load_prepared_dataset_from_feature_store(
     feature_view_name: str = "denmark_energy_consumption_view",
-    feature_view_ver: int = "1",
-    training_dataset_ver: int = "1",
+    feature_view_ver: int = 1,
+    training_dataset_ver: int = 1,
     target_feature: str = "consumption_kwh",
     forecasting_horizon: int = 24,
 ):
@@ -86,10 +86,10 @@ def load_prepare_dataset_from_feature_store(
     feature_view_name: str, default="denmark_energy_consumption_view"
         The name of the feature view in the hopsworks feature store.
 
-    feature_view_ver: int, default="1"
+    feature_view_ver: int, default=1
         The feature view version that needs to be loaded.
 
-    training_dataset_ver: int, default="1"
+    training_dataset_ver: int, default=1
         The training dataset version within the feature view that needs to be downloaded.
 
     target_feature: str, default="consumption_kwh"
