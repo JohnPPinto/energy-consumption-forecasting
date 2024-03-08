@@ -7,7 +7,7 @@ from sktime.transformations.series.date import DateTimeFeatures
 from sktime.transformations.series.summarize import WindowSummarizer
 
 
-def build_naive_forecast_model(seasonal_periodicity: int = 1) -> NaiveForecaster:
+def build_naive_forecast_model(seasonal_periodicity: int = 24) -> NaiveForecaster:
     """
     This function builds a naive forecast model using the 'last' as a strategy,
     where the forecast will be based on the last value of each season in the series.
@@ -26,7 +26,6 @@ def build_naive_forecast_model(seasonal_periodicity: int = 1) -> NaiveForecaster
 
 
 def build_lightgbm_model(
-    n_jobs: int = -1,
     summarize_period: List[int] = [24, 48, 72],
     model_params: Optional[Dict[str, Any]] = None,
 ):
@@ -36,11 +35,7 @@ def build_lightgbm_model(
 
     Parameters
     ----------
-    n_jobs: int, default=-1
-        The number of jobs to run in parallel for applying the window functions.
-        -1 means using all processors.
-
-    lag_period: List[int], default=[24, 48, 72]
+    summarize_period: List[int], default=[24, 48, 72]
         The period at which the window summarizer transformer will be applied and
         calculate the lag, mean and std.
         For eg. [24, 48, 72] indicate: lag of 72 period, mean and std of first
@@ -67,7 +62,7 @@ def build_lightgbm_model(
         }
     }
 
-    window_summarizer = WindowSummarizer(**kwargs, n_jobs=n_jobs)
+    window_summarizer = WindowSummarizer(**kwargs)
 
     # Building the LightGBM model on sktime forecaster method
     if model_params is None:

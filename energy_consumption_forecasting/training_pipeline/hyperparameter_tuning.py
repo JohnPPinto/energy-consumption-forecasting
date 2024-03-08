@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import optuna
 import pandas as pd
+import wandb
 from optuna.visualization import (
     plot_optimization_history,
     plot_param_importances,
@@ -13,7 +14,6 @@ from optuna.visualization import (
 from pydantic import validate_call
 from sktime.performance_metrics.forecasting import mean_absolute_percentage_error
 
-import wandb
 from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.training_pipeline.data_preprocessing import (
@@ -28,7 +28,7 @@ from energy_consumption_forecasting.utils import get_env_var, save_json_data
 logger = get_logger(name=Path(__file__).name)
 ROOT_DIRPATH = Path(get_env_var(key="PROJECT_ROOT_DIR_PATH", default_value="."))
 
-# Getting arguments for model tuning
+# Getting arguments for model tuning and hyperparameter tuning
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
@@ -66,14 +66,6 @@ parser.add_argument(
     type=int,
     default=24,
     help="Forecasting horizon period, needs to be in integer format.",
-)
-
-parser.add_argument(
-    "--n_jobs",
-    type=int,
-    default=-1,
-    help="Number of jobs to run in parallel, needs to be in integer format. "
-    "-1 indicated to use all the processors",
 )
 
 parser.add_argument(
@@ -125,11 +117,49 @@ def model_tuning(
     X_test: pd.DataFrame = X_test,
     y_test: pd.DataFrame = y_test,
     fh: int = 24,
-    n_jobs: int = -1,
     summarize_period: List[int] = [24, 48, 72],
     model_params: Optional[Dict[str, Any]] = None,
-):
-    """ """
+) -> float:
+    """
+    This function build the lightgbm model and trains and predict on training and
+    testing dataset, using the predict data then calculates an MAPE error.
+
+    Parameters
+    ----------
+    X_train: pd.DataFrame, default=X_train
+        A pandas dataframe for training the model not containing the target feature.
+
+    y_train: pd.DataFrame, default=y_train
+        A pandas dataframe for training the model containing the target feature.
+
+    X_test: pd.DataFrame, default=X_test
+        A pandas dataframe for testing the model not containing the target feature.
+
+    y_test: pd.DataFrame, default=y_test
+        A pandas dataframe for testing the model containing the target feature.
+
+    fh: int, default=24
+        A period that indicates the forecast horizon while making prediction in Hours.
+
+    summarize_period: List[int], default=[24, 48, 72]
+        The period at which the window summarizer transformer will be applied and
+        calculate the lag, mean and std.
+        For eg. [24, 48, 72] indicate: lag of 72 period, mean and std of first
+        24 period, then 48 period and last 72 period.
+        Note: Period can be sort of duration, in the above example it is hours.
+
+    model_params: Optional[Dict[str, Any]], default=None
+        A dict containing the hyperparameters of the LightGBM model.
+        If None is provided then model is build with default parameters.
+
+    Returns
+    -------
+    float
+        MAPE error is returned, this indicates the error deviation between the
+        actual and predicted values. Error value needs to be between 0 and 1
+        and the value should be lower for better results.
+
+    """
 
     # Building the model forecasting pipeline
     logger.info(
@@ -138,7 +168,6 @@ def model_tuning(
     )
 
     pipe = build_lightgbm_model(
-        n_jobs=n_jobs,
         summarize_period=summarize_period,
         model_params=model_params,
     )
@@ -177,7 +206,6 @@ def objective(trial: optuna.trial.Trial):
         X_test=X_test,
         y_test=y_test,
         fh=args.fh,
-        n_jobs=args.n_jobs,
         summarize_period=args.summarize_period,
         model_params=lgbm_params,
     )
@@ -188,7 +216,17 @@ def objective(trial: optuna.trial.Trial):
 @log_exception(logger=logger)
 @validate_call
 def hyperparameter_tuning(filepath: Path = args.filepath):
-    """ """
+    """
+    This function tunes the model for finding the best hyperparameters and saves the
+    final best configuration locally as a JSON file and in WandB artifact.
+
+    Parameters
+    ----------
+    filepath: Path, default='data/assets/hyperparameter/best_config.json'
+        The filepath to save the configuration as JSON file, the path needs to have a
+        .json extension at the end of the filename.
+    """
+
     with init_wandb_run(
         run_name="get_best_hyperparameter",
         job_type="model_tuning",

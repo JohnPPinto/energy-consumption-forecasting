@@ -1,0 +1,48 @@
+{
+    "experiment": {
+        "fh": 360,
+        "summarize_period": [
+            24,
+            48,
+            72
+        ],
+        "feature_view_name": "denmark_energy_consumption_view",
+        "feature_view_ver": 1,
+        "training_dataset_ver": 1,
+        "target_feature": "consumption_kwh",
+        "model_type": "lightgbm",
+        "model_name": "lightgbm_model",
+        "model_id_or_ver": 1,
+        "training_start_datetime": "2023-01-01T12:00:00",
+        "training_end_datetime": "2023-12-16T23:00:00",
+        "testing_start_datetime": "2023-12-17T00:00:00",
+        "testing_end_datetime": "2023-12-31T23:00:00",
+        "prediction_start_datetime": "2023-12-17T00:00:00",
+        "prediction_end_datetime": "2023-12-31T23:00:00"
+    },
+    "result": {
+        "metrics": {
+            "mape": 0.2253487902800301,
+            "rmspe": 0.4614861669547965
+        }
+    },
+    "model_registry": {
+        "id": "lightgbm_model_1",
+        "experimentId": null,
+        "projectName": "dk_energy_consumption",
+        "experimentProjectName": "dk_energy_consumption",
+        "name": "lightgbm_model",
+        "modelSchema": null,
+        "version": 1,
+        "description": "A collection of models for lightgbm_model",
+        "inputExample": null,
+        "framework": "PYTHON",
+        "metrics": {
+            "rmspe": 0.4614861669547965,
+            "mape": 0.2253487902800301
+        },
+        "trainingDataset": null,
+        "environment": null,
+        "program": null
+    }
+}
