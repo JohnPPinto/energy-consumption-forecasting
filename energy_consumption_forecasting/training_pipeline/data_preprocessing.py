@@ -43,7 +43,9 @@ def prepare_data(
             Dataframe split in train and test: (y_train, y_test, X_train, X_test).
     """
 
-    # Converting the datetime and setting the input columns to index
+    # Processing the data into sktime format:
+    # X: Containing all the hierarchical features as multi-index format
+    # y: Along with the multi-index features in X, target feature data needs to be present
     dataframe["datetime_dk"] = pd.PeriodIndex(dataframe["datetime_dk"], freq="H")
     dataframe = dataframe.set_index(
         ["municipality_num", "branch", "datetime_dk"]
