@@ -21,6 +21,7 @@ optuna = "^3.5.0"
 matplotlib = "^3.8.2"
 seaborn = "^0.13.2"
 plotly = "^5.19.0"
+google-cloud-storage = "^2.15.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

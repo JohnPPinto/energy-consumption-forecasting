@@ -166,7 +166,7 @@ if __name__ == "__main__":
         "--start_datetime",
         type=datetime.datetime.fromisoformat,
         default="2021-01-01",
-        help="Starting date for extraction in format: YYYY-MM-DD HH:MM:SS",
+        help="Starting date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
     parser.add_argument(
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         "--end_datetime",
         type=datetime.datetime.fromisoformat,
         default="2023-12-31",
-        help="Ending date for extraction in format: YYYY-MM-DD HH:MM:SS",
+        help="Ending date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
     parser.add_argument(
