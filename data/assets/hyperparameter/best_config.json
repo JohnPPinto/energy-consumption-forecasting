@@ -1,1 +1,9 @@
-{"learning_rate": 0.02225732018902561, "num_leaves": 145, "min_data_in_leaf": 51, "bagging_fraction": 0.9464338422254237, "colsample_bytree": 0.9520001331598361, "n_estimators": 500, "bagging_freq": 1}
+{
+    "learning_rate": 0.02144657222378065,
+    "num_leaves": 153,
+    "min_data_in_leaf": 8,
+    "bagging_fraction": 0.6954443018327832,
+    "colsample_bytree": 0.20385331173350124,
+    "n_estimators": 500,
+    "bagging_freq": 1
+}

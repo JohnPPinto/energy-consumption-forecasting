@@ -33,6 +33,8 @@ def run_feature_pipeline(
         "branch",
         "datetime_dk",
     ],
+    feature_group_name: str = "denmark_energy_consumption_group",
+    feature_group_ver: int = 1,
 ) -> Tuple[Dict[Any, Any], Path]:
     """
     This functions runs the feature pipeline process i.e. ETL - Extract, Transform and
@@ -58,6 +60,12 @@ def run_feature_pipeline(
 
     check_features_duplicate: List[Any], default=["municipality_num", "branch", "datetime_dk"]
         A list containing column names for checking duplication and dropping the rows.
+
+    feature_group_name: str, default="denmark_energy_consumption_group"
+        A name in string type to set the feature group name.
+
+    feature_group_ver: int, default=1
+        A version number in int type to set the feature group version.
 
     Returns
     -------
@@ -110,6 +118,8 @@ def run_feature_pipeline(
     feature_store_metadata, csv_filepath = data_loading.loading_data_to_hopsworks(
         dataframe=dataframe,
         generated_expectation_suite=generated_expectation_suite,
+        hopsworks_feature_group_name=feature_group_name,
+        hopsworks_feature_group_version=feature_group_ver,
     )
 
     logger.info("Data loading process is successfully completed.\n")
@@ -142,6 +152,8 @@ def run_feature_pipeline(
 if __name__ == "__main__":
 
     class ParseKVAction(argparse.Action):
+
+        @log_exception(logger=logger)
         def __call__(
             self,
             parser: argparse.ArgumentParser,
@@ -165,7 +177,7 @@ if __name__ == "__main__":
         "-s",
         "--start_datetime",
         type=datetime.datetime.fromisoformat,
-        default="2021-01-01",
+        required=True,
         help="Starting date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
@@ -173,7 +185,7 @@ if __name__ == "__main__":
         "-e",
         "--end_datetime",
         type=datetime.datetime.fromisoformat,
-        default="2023-12-31",
+        required=True,
         help="Ending date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
@@ -189,7 +201,7 @@ if __name__ == "__main__":
             "ConsumptionkWh": "consumption_kwh",
         },
         help="Rename the features to transform the dataframe, "
-        "format needs to be in CURRENT_NAME=NEW_NAME ...",
+        "format needs to be in KEY=VALUE pair, eg. CURRENT_NAME=NEW_NAME ...",
         metavar="CURRENT_NAME=NEW_NAME",
     )
 
@@ -211,6 +223,20 @@ if __name__ == "__main__":
         "clean the dataframe, format needs to be in NAME_1 NAME_2 NAME_3 ...",
     )
 
+    parser.add_argument(
+        "--group_version",
+        type=int,
+        default=1,
+        help="Feature group version, needs to be in integer format.",
+    )
+
+    parser.add_argument(
+        "--group_name",
+        type=str,
+        default="denmark_energy_consumption_group",
+        help="Feature group name, needs to be in string format.",
+    )
+
     args = parser.parse_args()
 
     _, filepath = run_feature_pipeline(
@@ -219,6 +245,8 @@ if __name__ == "__main__":
         rename_features=args.rename_features,
         drop_features=args.drop_features,
         check_features_duplicates=args.check_duplicates,
+        feature_group_ver=args.group_version,
+        feature_group_name=args.group_name,
     )
 
     print(f"\nLocally saved metadata filepath: {filepath}")

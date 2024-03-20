@@ -2,13 +2,14 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import wandb
 from pydantic import validate_call
 from sktime.performance_metrics.forecasting import (
     mean_absolute_percentage_error,
@@ -16,7 +17,6 @@ from sktime.performance_metrics.forecasting import (
 )
 from sktime.utils.plotting import plot_series
 
-import wandb
 from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.training_pipeline.data_preprocessing import (
@@ -337,6 +337,7 @@ def model_training_pipeline(
     model_type: Literal["naive", "lightgbm"] = "lightgbm",
     model_name: str = "forecast_model",
     model_id_or_ver: int = 1,
+    model_params_path: Optional[str | Path] = None,
 ) -> Dict[str, Any]:
     """
     This function performs the model training pipeline, where it builds the specified
@@ -383,6 +384,9 @@ def model_training_pipeline(
     model_id_or_ver: int, default=1
         Version or ID of the model for identification purpose.
 
+    model_params_path: str or Path or None, default=None
+        A json file path containing model parameters of LightGBM model.
+
     Returns
     -------
     Dict[str, Any]
@@ -428,14 +432,16 @@ def model_training_pipeline(
             logger.info("Naive forecaster model is been build and ready for training")
 
         elif model_type == "lightgbm":
-            # Getting the saved hyperparameter file from the wandb artifact
-            model_params_artifact = run.use_artifact(
-                artifact_or_name="best_config:latest",
-                type="model",
-            )
-            artifact_dir = model_params_artifact.download()
-            model_params_path = Path(artifact_dir) / "best_config.json"
-            with open(model_params_path) as file:
+            if model_params_path is None:
+                # Getting the saved hyperparameter file from the wandb artifact
+                model_params_artifact = run.use_artifact(
+                    artifact_or_name="best_config:latest",
+                    type="model",
+                )
+                artifact_dir = model_params_artifact.download()
+                model_params_path = Path(artifact_dir) / "best_config.json"
+
+            with open(Path(model_params_path)) as file:
                 model_params = json.load(file)
 
             # Updating the WandB config with the hyperparameters
@@ -606,7 +612,8 @@ if __name__ == "__main__":
         "--model_name",
         type=str,
         default="forecast_model",
-        help="Name of the model for this training experiment, needs to be in string format.",
+        help="Name of the model for this training experiment, needs to be in "
+        "string format.",
     )
 
     parser.add_argument(
@@ -615,6 +622,14 @@ if __name__ == "__main__":
         default=1,
         help="Model version or id for this training experiment, "
         "needs to be in integer format.",
+    )
+
+    parser.add_argument(
+        "--model_params_path",
+        type=Path,
+        default=None,
+        help="Relative filepath for JSON file containing the model parameters "
+        "for LightGBM model",
     )
 
     args = parser.parse_args()
@@ -630,4 +645,5 @@ if __name__ == "__main__":
         model_type=args.model_type,
         model_name=args.model_name,
         model_id_or_ver=args.model_ver,
+        model_params_path=args.model_params_path,
     )

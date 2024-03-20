@@ -49,7 +49,7 @@ def get_extraction_datetime(
         raise Exception("End date needs to be greater than the start date")
 
     # Converting the date format for API query and
-    # increasing the end date by 1 day as per the API guide (off-by-one error)
+    # increasing the end date by 1 day as per the API guide
     start_date_time = start_date_time.strftime("%Y-%m-%dT%H:%M")
     end_date_time = (end_date_time + datetime.timedelta(days=1)).strftime(
         "%Y-%m-%dT%H:%M"

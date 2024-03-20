@@ -1,13 +1,18 @@
 [tool.poetry]
 name = "energy-consumption-forecasting"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Machine Learning project on Denmark's Energy Consumption."
 authors = ["John Pinto <66053973+JohnPPinto@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
+exclude = [
+    "**/logs", 
+    "**/.env", 
+    "**/pypi"
+]
 
 [tool.poetry.dependencies]
-python = "3.11.7"
+python = "~3.11.7"
 hopsworks = "^3.4.4"
 pandas = "^2.1.4"
 python-dotenv = "^1.0.1"
@@ -22,6 +27,7 @@ matplotlib = "^3.8.2"
 seaborn = "^0.13.2"
 plotly = "^5.19.0"
 google-cloud-storage = "^2.15.0"
+passlib = "^1.7.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

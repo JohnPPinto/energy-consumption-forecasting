@@ -338,7 +338,7 @@ if __name__ == "__main__":
         "-s",
         "--start_datetime",
         type=datetime.fromisoformat,
-        default="2021-01-01",
+        required=True,
         help="Starting date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
@@ -346,7 +346,7 @@ if __name__ == "__main__":
         "-e",
         "--end_datetime",
         type=datetime.fromisoformat,
-        default="2023-12-31",
+        required=True,
         help="Ending date for extraction in format: YYYY-MM-DDTHH:MM:SS",
     )
 
