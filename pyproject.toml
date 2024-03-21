@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "energy-consumption-forecasting"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Machine Learning project on Denmark's Energy Consumption."
 authors = ["John Pinto <66053973+JohnPPinto@users.noreply.github.com>"]
 license = "MIT"

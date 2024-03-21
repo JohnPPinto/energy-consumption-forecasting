@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import wandb
 from pydantic import validate_call
 from sktime.performance_metrics.forecasting import (
     mean_absolute_percentage_error,
@@ -17,7 +16,11 @@ from sktime.performance_metrics.forecasting import (
 )
 from sktime.utils.plotting import plot_series
 
-from energy_consumption_forecasting.exceptions import log_exception
+import wandb
+from energy_consumption_forecasting.exceptions import (
+    CustomExceptionMessage,
+    log_exception,
+)
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.training_pipeline.data_preprocessing import (
     load_prepared_dataset_from_feature_store,
@@ -254,12 +257,12 @@ def evaluate_model(
         wandb.log({plot_filepath.stem: wandb.Image(str(plot_filepath))})
 
         logger.info(
-            f"All the plot are saved in the directory: {save_dirpath} "
+            f'All the plot are saved in the directory: "{save_dirpath}" '
             "and also logged in the WandB."
         )
         logger.info(
             "Prediction comparison plot are saved in format "
-            '"pred_plot_<municipality_num>_<branch>.png" and metrics_result.png'
+            '"pred_plot_<municipality_num>_<branch>.png" and "metrics_result.png"'
         )
 
     # Adding the municipality_num and branch grouped
@@ -279,6 +282,9 @@ def save_model_to_hopsworks(
     Save the model within the hopsworks registry, by connecting to the hopsworks
     account, to connect the hopsworks account your project name and API key needs to be
     mentioned as a env variable.
+
+    Note: Currently, the registered model is been deleted and replaced with the new
+          one, this is because hopsworks has a limitation on model version.
 
     Parameters
     ----------
@@ -311,10 +317,24 @@ def save_model_to_hopsworks(
         f'Project URL: "{project.get_url()}"'
     )
 
-    # Uploading the model to the registry
+    # Getting the model registry from hopsworks
     model_registry = project.get_model_registry()
+
+    # Deleting the registered model and uploading the new model with same name and ver
+    try:
+        model_registry.get_model(name=model_name, version=model_ver).delete()
+        logger.info("Model has been deleted from the hopsworks model registry.")
+    except Exception as e:
+        print(CustomExceptionMessage(e))
+        print(
+            f"No model was found in the model registry with name: {model_name} "
+            f"and version: {model_ver}, registering new model."
+        )
+
     model_meta_obj = model_registry.python.create_model(
-        name=model_name, version=model_ver, metrics=model_metrics
+        name=model_name,
+        version=model_ver,
+        metrics=model_metrics,
     )
     model_meta_obj.save(model_path=model_filepath)
     logger.info(
@@ -337,7 +357,7 @@ def model_training_pipeline(
     model_type: Literal["naive", "lightgbm"] = "lightgbm",
     model_name: str = "forecast_model",
     model_id_or_ver: int = 1,
-    model_params_path: Optional[str | Path] = None,
+    model_params_or_path: Optional[str | Path | Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     This function performs the model training pipeline, where it builds the specified
@@ -384,8 +404,9 @@ def model_training_pipeline(
     model_id_or_ver: int, default=1
         Version or ID of the model for identification purpose.
 
-    model_params_path: str or Path or None, default=None
-        A json file path containing model parameters of LightGBM model.
+    model_params_or_path: str or Path or dict or None, default=None
+        A json file path or dict containing model parameters of LightGBM model.
+        It is ignored if model_type "naive" is been provided.
 
     Returns
     -------
@@ -412,11 +433,11 @@ def model_training_pipeline(
 
     logger.info(
         f'Training dataset datetime range is from "{train_start_datetime}" to '
-        f"{train_end_datetime}."
+        f'"{train_end_datetime}".'
     )
     logger.info(
         f'Testing dataset datetime range is from "{test_start_datetime}" to '
-        f"{test_end_datetime}."
+        f'"{test_end_datetime}".'
     )
 
     with init_wandb_run(
@@ -432,26 +453,30 @@ def model_training_pipeline(
             logger.info("Naive forecaster model is been build and ready for training")
 
         elif model_type == "lightgbm":
-            if model_params_path is None:
+            if model_params_or_path is None:
                 # Getting the saved hyperparameter file from the wandb artifact
                 model_params_artifact = run.use_artifact(
                     artifact_or_name="best_config:latest",
                     type="model",
                 )
                 artifact_dir = model_params_artifact.download()
-                model_params_path = Path(artifact_dir) / "best_config.json"
+                model_params_or_path = Path(artifact_dir) / "best_config.json"
 
-            with open(Path(model_params_path)) as file:
-                model_params = json.load(file)
+            if type(model_params_or_path) == str or type(model_params_or_path) == Path:
+                with open(Path(model_params_or_path)) as file:
+                    model_params_or_path = json.load(file)
 
             # Updating the WandB config with the hyperparameters
-            run.config.update(model_params)
+            run.config.update(model_params_or_path)
 
             forecast_model = build_lightgbm_model(
                 summarize_period=summarize_period,
-                model_params=model_params,
+                model_params=model_params_or_path,
             )
-            logger.info("LightGBM model is been build and ready for training")
+            logger.info(
+                "LightGBM model is been build using parameters "
+                f"{model_params_or_path} and now ready for training."
+            )
 
         forecast_model = train_model(
             model=forecast_model, X_train=X_train, y_train=y_train, fh=fh
@@ -472,7 +497,7 @@ def model_training_pipeline(
         pred_end_datetime = y_pred.index.get_level_values("datetime_dk").max()
         logger.info(
             f'Predicted dataframe datetime range is from "{pred_start_datetime}" to '
-            f"{pred_end_datetime}."
+            f'"{pred_end_datetime}".'
         )
         for k, v in metrics_dict.items():
             logger.info(f"Baseline metric dict: {k}: {v}")
@@ -516,6 +541,7 @@ def model_training_pipeline(
                 "prediction_end_datetime": pred_end_datetime.to_timestamp().isoformat(),
             },
             "result": {"metrics": metrics_dict},
+            "model_params": model_params_or_path,
         }
 
         metadata["model_registry"] = save_model_to_hopsworks(
@@ -539,7 +565,7 @@ def model_training_pipeline(
 
         run.finish()
 
-    return metadata
+    return metadata, metadata_filepath
 
 
 if __name__ == "__main__":
@@ -625,7 +651,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--model_params_path",
+        "--model_params_or_path",
         type=Path,
         default=None,
         help="Relative filepath for JSON file containing the model parameters "
@@ -645,5 +671,5 @@ if __name__ == "__main__":
         model_type=args.model_type,
         model_name=args.model_name,
         model_id_or_ver=args.model_ver,
-        model_params_path=args.model_params_path,
+        model_params_or_path=args.model_params_or_path,
     )

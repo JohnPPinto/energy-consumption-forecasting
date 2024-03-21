@@ -128,8 +128,8 @@ def create_feature_view(
         f"between the start date: {start_datetime} and end date: {end_datetime}"
     )
 
-    energy_feature_view.create_training_data(
-        description=f"Training dataset between {start_datetime} and {end_datetime}",
+    dataset_version, _ = energy_feature_view.create_training_data(
+        description=f'Training dataset between "{start_datetime}" and "{end_datetime}"',
         data_format="csv",
         start_time=start_datetime,
         end_time=end_datetime,
@@ -145,6 +145,9 @@ def create_feature_view(
         .replace('"{', "{")
         .replace('}"', "}")
     )
+    energy_feature_view_metadata["train_dataset_start_datetime"] = str(start_datetime)
+    energy_feature_view_metadata["train_dataset_end_datetime"] = str(end_datetime)
+    energy_feature_view_metadata["train_dataset_version"] = int(dataset_version)
 
     json_filepath = DATA_DIRPATH / f"{feature_views_name}_v1_metadata.json"
     save_json_data(data=energy_feature_view_metadata, filepath=json_filepath)

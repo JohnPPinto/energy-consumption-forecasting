@@ -34,7 +34,24 @@ def compute_performance_metrics(
     target_feature: str = "consumption_kwh",
 ) -> None:
     """
-    
+    This function computes performance metrics like MAPE and RMSPE using the
+    predicted dataset and ground truth dataset, the metric result will be based on the
+    datetime feature.
+
+    Prediction dataset is downloaded from GCS bucket named cached_prediction, this is
+    generated during the inference pipeline and ground truth is download from
+    hopsworks feature store.
+
+    Parameters
+    ----------
+    feature_view_ver: int, default=1
+        The feature view version for ground truth dataset.
+
+    feature_view_name: str, default="denmark_energy_consumption_view"
+        The name of the feature view in the hopsworks feature store.
+
+    target_feature: str, default="consumption_kwh"
+        The name of the target feature in the dataset.
     """
 
     # Getting the bucket object from GCS and reading the cached prediction data

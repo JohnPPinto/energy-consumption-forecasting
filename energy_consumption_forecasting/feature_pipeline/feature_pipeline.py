@@ -26,7 +26,12 @@ DATA_DIRPATH = ROOT_DIRPATH / "data" / "processed_data"
 def run_feature_pipeline(
     start_date_time: datetime.datetime,
     end_date_time: datetime.datetime,
-    rename_features: Dict[Any, Any],
+    rename_features: Dict[Any, Any] = {
+        "HourDK": "datetime_dk",
+        "MunicipalityNo": "municipality_num",
+        "Branche": "branch",
+        "ConsumptionkWh": "consumption_kwh",
+    },
     drop_features: Optional[List[Any]] = ["HourUTC"],
     check_features_duplicates: List[Any] = [
         "municipality_num",
@@ -140,7 +145,7 @@ def run_feature_pipeline(
     )
 
     # Saving the provided feature store metadata in a local directory as a json file
-    csv_filepath = csv_filepath.name.split("_")[:4]
+    csv_filepath = csv_filepath.name.split("_")[:5]
     json_filepath = DATA_DIRPATH / f"{'_'.join(csv_filepath)}_metadata.json"
     save_json_data(data=feature_store_metadata, filepath=json_filepath)
 

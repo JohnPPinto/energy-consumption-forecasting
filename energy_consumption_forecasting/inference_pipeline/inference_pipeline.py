@@ -1,5 +1,5 @@
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import joblib
@@ -93,6 +93,7 @@ def get_batch_forecast(model, X: pd.DataFrame, fh: int = 24) -> pd.DataFrame:
     branch = X.index.get_level_values(level=1).unique()
     last_datetime = X.index.get_level_values(level=2).max()
 
+    # Forecast date range starts after the test data and ends at max forecast horizon
     start_datetime = last_datetime + 1
     end_datetime = last_datetime + fh
     fh_range = pd.date_range(
@@ -153,10 +154,7 @@ def save_data_to_gcs_bucket(X: pd.DataFrame, y: pd.DataFrame, prediction: pd.Dat
         logger.info(f'Blob Data "{blob_name}" is successfully uploaded to GCS bucket.')
 
 
-def save_prediction_data_for_caching(
-    prediction: pd.DataFrame,
-    start_datetime: datetime,
-):
+def save_prediction_data_for_caching(prediction: pd.DataFrame):
     """
     This function creates or updates the cached prediction dataframe with the newly
     generated prediction and then saves the dataframe in the Google cloud storage(GCS)
@@ -166,10 +164,6 @@ def save_prediction_data_for_caching(
     ----------
     prediction: pd.DataFrame
         Newly generated forecast prediction by the model.
-
-    start_datetime: datetime.datetime
-        A starting date and time for filtering the cached prediction before uploading
-        the data in the GCS bucket.
     """
 
     # Getting the GCS bucket object to download the cached prediction data
@@ -200,11 +194,7 @@ def save_prediction_data_for_caching(
         new_prediction.update(cached_pred)
         prediction = new_prediction
 
-    # Checking the prediction dataframe and uploading it to the GCS bucket
-    prediction = prediction.loc[
-        prediction.index.get_level_values("datetime_dk")
-        >= pd.Period(start_datetime, freq="H")
-    ]
+    # Cleaning the prediction dataframe and uploading it to the GCS bucket
     prediction = prediction.dropna(subset=["consumption_kwh"])
 
     write_blob_to_bucket(
@@ -286,7 +276,8 @@ def run_inference_pipeline(
     X, y = get_batch_data_from_hopsworks(
         feature_store=feature_store,
         start_datetime=start_datetime,
-        end_datetime=end_datetime,
+        # Adding 1 hour to make the date accurate with the less than rule
+        end_datetime=end_datetime + timedelta(hours=1),
         feature_view_ver=feature_view_ver,
         feature_view_name=feature_view_name,
         target_feature=target_feature,

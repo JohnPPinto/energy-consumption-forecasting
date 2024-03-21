@@ -1,11 +1,10 @@
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import optuna
 import pandas as pd
-import wandb
 from optuna.visualization import (
     plot_optimization_history,
     plot_param_importances,
@@ -14,6 +13,7 @@ from optuna.visualization import (
 from pydantic import validate_call
 from sktime.performance_metrics.forecasting import mean_absolute_percentage_error
 
+import wandb
 from energy_consumption_forecasting.exceptions import log_exception
 from energy_consumption_forecasting.logger import get_logger
 from energy_consumption_forecasting.training_pipeline.data_preprocessing import (
@@ -110,7 +110,7 @@ def model_tuning(
 
 @log_exception(logger=logger)
 @validate_call
-def hyperparameter_tuning(
+def run_hyperparameter_tuning(
     feature_view_name: str = "denmark_energy_consumption_view",
     feature_view_ver: int = 1,
     training_dataset_ver: int = 1,
@@ -118,8 +118,8 @@ def hyperparameter_tuning(
     forecasting_horizon: int = 24,
     summarize_period: List[int] = [24, 48, 72],
     n_trials: int = 20,
-    save_filepath: Path = ASSETS_DIRPATH / "best_config.json",
-):
+    save_dir: Path = ASSETS_DIRPATH,
+) -> Tuple[Dict[str, Any], Path]:
     """
     This function tunes the model for finding the best hyperparameters and saves the
     final best configuration locally as a JSON file and in WandB artifact.
@@ -185,18 +185,19 @@ def hyperparameter_tuning(
         study.optimize(objective, n_trials=n_trials)
 
         # saving the best params locally and also logging it as an artifact
-        Path(save_filepath).parent.mkdir(parents=True, exist_ok=True)
-        save_json_data(data=study.best_params, filepath=save_filepath)
+        filepath = save_dir / "best_config.json"
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        save_json_data(data=study.best_params, filepath=filepath)
 
         artifact = wandb.Artifact(
             name="best_config", type="model", metadata=study.best_params
         )
-        artifact.add_file(local_path=save_filepath)
+        artifact.add_file(local_path=filepath)
         run.log_artifact(artifact)
 
         logger.info(f"Best params for the LightGBM model is: {study.best_params}")
         logger.info(
-            f"Hyperparameters has been saved to filepath: {save_filepath} and "
+            f'Hyperparameters has been saved to filepath: "{filepath}" and '
             "Artifact best_config has been logged successfully"
         )
 
@@ -212,7 +213,7 @@ def hyperparameter_tuning(
 
         run.finish()
 
-    return save_filepath
+    return study.best_params, filepath
 
 
 if __name__ == "__main__":
@@ -282,7 +283,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    filepath = hyperparameter_tuning(
+    filepath = run_hyperparameter_tuning(
         feature_view_name=args.views_name,
         feature_view_ver=args.views_ver,
         training_dataset_ver=args.dataset_ver,
