@@ -2,9 +2,6 @@ from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.edgemodifier import Label
-from airflow.utils.trigger_rule import TriggerRule
 
 
 @dag(
@@ -15,8 +12,8 @@ from airflow.utils.trigger_rule import TriggerRule
     tags=["feature-pipeline", "training-pipeline", "inference-pipeline"],
     max_active_runs=1,
     default_args={
-        "retries": 10,
-        "retry_delay": timedelta(minutes=0.5),
+        "retries": 60,
+        "retry_delay": timedelta(days=1),
     },
 )
 def workflow_pipeline():
@@ -309,7 +306,7 @@ def workflow_pipeline():
 
         # Transforming the start and end datetime
         start_datetime = transform_datetime(
-            date_time=exp_metadata.get("testing_start_datetime")
+            date_time=exp_metadata.get("training_start_datetime")
         )
         end_datetime = transform_datetime(
             date_time=exp_metadata.get("testing_end_datetime")
@@ -428,13 +425,14 @@ def workflow_pipeline():
         )
     )
 
-    summarize_period = list(
+    summarize_period = dict(
         Variable.get(
             key="workflow_pipeline_summarize_period",
-            default_var=[24, 48, 72],
+            default_var={"0": [24, 48, 72]},
             deserialize_json=True,
         )
     )
+    summarize_period = list(summarize_period.get("0"))
 
     n_trials = int(
         Variable.get(

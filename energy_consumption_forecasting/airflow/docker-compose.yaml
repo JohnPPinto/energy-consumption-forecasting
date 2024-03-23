@@ -85,7 +85,7 @@ x-airflow-common:
   secrets:
     - service_account_key
   env_file:
-    - ../../secrets/airflow.env
+    - ../../secrets/airflow/airflow.env
 
 services:
   postgres:
@@ -304,4 +304,4 @@ volumes:
 
 secrets:
   service_account_key:
-    file: ../../secrets/service_account_key.json
+    file: ../../secrets/airflow/service_account_key.json

@@ -314,10 +314,7 @@ def run_inference_pipeline(
 
     # Saving the newly generated prediction by updating the cached_prediction dataframe
     logger.info("Merging new prediction with cached prediction")
-    save_prediction_data_for_caching(
-        prediction=prediction,
-        start_datetime=start_datetime,
-    )
+    save_prediction_data_for_caching(prediction=prediction)
     logger.info("Cached prediction was successfully updated with the new prediction")
 
 

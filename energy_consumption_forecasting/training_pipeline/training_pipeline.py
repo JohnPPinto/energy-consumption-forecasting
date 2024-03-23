@@ -54,6 +54,9 @@ def train_model(model, X_train: pd.DataFrame, y_train: pd.DataFrame, fh: int = 2
     y_train: pd.DataFrame
         A pandas dataframe for training the model containing the target feature.
 
+    fh: int, default=24
+        A integer that declares the forecast horizon for the model predictions.
+
     Return
     ------
     model
@@ -63,6 +66,34 @@ def train_model(model, X_train: pd.DataFrame, y_train: pd.DataFrame, fh: int = 2
     fh = np.arange(fh) + 1
     model.fit(y=y_train, X=X_train, fh=fh)
 
+    return model
+
+
+def update_model(model, X_test: pd.DataFrame, y_test: pd.DataFrame):
+    """
+    Update the forecast model using the given testing dataset.
+    The parameters of the forecast model is not updated, only the data is stored and
+    the cutoff state is updated with the last date of the provided dataset.
+
+    Parameters
+    ----------
+    model
+        A sktime forecasting model or a forecasting pipeline, this model needs to be
+        already fitted with a training dataset.
+
+    X_test: pd.DataFrame
+        A pandas dataframe with test data not containing the target feature.
+
+    y_train: pd.DataFrame
+        A pandas dataframe with test data containing the target feature.
+
+    Return
+    ------
+    model
+        The model is been updated and returned back for performing prediction.
+    """
+
+    model.update(X=X_test, y=y_test, update_params=False)
     return model
 
 
@@ -481,6 +512,7 @@ def model_training_pipeline(
         forecast_model = train_model(
             model=forecast_model, X_train=X_train, y_train=y_train, fh=fh
         )
+        logger.info("Model training has been completed successfully.")
 
         y_pred, metrics_dict = evaluate_model(
             model=forecast_model,
@@ -500,7 +532,16 @@ def model_training_pipeline(
             f'"{pred_end_datetime}".'
         )
         for k, v in metrics_dict.items():
-            logger.info(f"Baseline metric dict: {k}: {v}")
+            logger.info(f"{model_type.capitalize()} model performance result: {k}: {v}")
+        logger.info("Model Evaluation has been completed successfully.")
+
+        logger.info("Updating model with the recent data (Test dataset).")
+        forecast_model = update_model(
+            model=forecast_model, X_test=X_test, y_test=y_test
+        )
+        logger.info("Model update process has been completed successfully.")
+
+        # Logging the performance metrics in WandB
         wandb.log({"metrics": {f"{model_name}_{model_id_or_ver}": metrics_dict}})
         wandb.log(
             {

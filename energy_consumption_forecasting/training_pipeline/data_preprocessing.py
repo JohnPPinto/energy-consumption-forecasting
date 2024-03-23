@@ -39,8 +39,8 @@ def prepare_data(
 
     Returns
     -------
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
-            Dataframe split in train and test: (y_train, y_test, X_train, X_test).
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Dataframe split in train and test: (y_train, y_test, X_train, X_test).
     """
 
     # Processing the data into sktime format:
@@ -73,7 +73,7 @@ def load_prepared_dataset_from_feature_store(
     training_dataset_ver: int = 1,
     target_feature: str = "consumption_kwh",
     forecasting_horizon: int = 24,
-):
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     This function loads the feature view from feature store and gets the training
     dataset from the feature view.\nAll the metadata from feature view is stored in
@@ -102,8 +102,8 @@ def load_prepared_dataset_from_feature_store(
 
     Returns
     -------
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
-            Dataframe splitted in train and test: (y_train, y_test, X_train, X_test).
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Dataframe splitted in train and test: (y_train, y_test, X_train, X_test).
     """
 
     # Connecting to the hopsworks feature store using the project API
