@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      dockerfile: backend/Dockerfile
+    image: backend:${BACKEND_VERSION:-latest}
+    restart: always
+    ports:
+      - 8001:8001
+    env_file:
+      - secrets/app/app.env
+    secrets:
+      - service_account_key
+
+  frontend:
+    build:
+      dockerfile: frontend/Dockerfile
+    image: frontend:${FRONTEND_VERSION:-latest}
+    restart: always
+    ports:
+      - 8501:8501
+    depends_on:
+      - backend
+  
+  monitoring:
+    build:
+      dockerfile: monitoring/Dockerfile
+    image: monitoring:${MONITORING_VERSION:-latest}
+    restart: always
+    ports:
+      - 8502:8502
+    depends_on:
+      - backend
+
+secrets:
+  service_account_key:
+    file: secrets/app/service_account_key.json

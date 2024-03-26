@@ -2,7 +2,9 @@ from datetime import datetime
 
 
 def transform_datetime(date_time: str) -> datetime:
-    """ """
+    """
+    Transform datetime from string to datetime object.
+    """
 
     # Transforming the datetime from string to datetime object
     for format in (

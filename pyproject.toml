@@ -28,11 +28,6 @@ seaborn = "^0.13.2"
 plotly = "^5.19.0"
 google-cloud-storage = "^2.15.0"
 passlib = "^1.7.4"
-gcsfs = "^2024.3.1"
-uvicorn = "^0.29.0"
-fastapi = "^0.110.0"
-streamlit = "^1.32.2"
-pydantic-settings = "^2.2.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
