@@ -1,8 +1,7 @@
 import requests
 import streamlit as st
-from yarl import URL
-
 from monitoring.components import build_metrics_plot, build_monitoring_plot
+from yarl import URL
 
 API_URL = URL(val="http://172.17.0.1:8001/api/v1")
 TITLE = "Monitoring - Denmark's Energy Consumption Forecasting"
@@ -31,8 +30,8 @@ with tab2:
 
     # Creating a drop down for municipality number selection
     municipality_num = st.selectbox(
-        label="Each of the 98 Danish municipalities have a unique number, "
-        "ranging from 101 Copenhagen to 860 Hj\u00f8rring.",
+        label="**Municipality Number:** Each of the 98 Danish municipalities have a "
+        "unique number, ranging from 101 Copenhagen to 860 Hj\u00f8rring.",
         options=municipality_num_response.json().get("values", []),
         index=None,
         placeholder="Select a municipality number...",
@@ -46,9 +45,10 @@ with tab2:
     }
     branch_list = [branch_maps.get(i) for i in branch_response.json().get("values", [])]
     branch = st.selectbox(
-        label="All measurement id's related to a CVR number are labeled as 'Erhverv' "
-        "except those that belong to 'Office, admin, which are labeled "
-        "'Offentligt'. All other measurement id's are labeled 'Privat'.",
+        label="**Branch:** All measurement id's related to a Central Business "
+        "Register(CVR) number are labeled as 'Erhverv' except those that belong to "
+        "'Office, admin, which are labeled 'Offentligt'. All other measurement id's "
+        "are labeled 'Privat'.",
         options=branch_list,
         index=None,
         placeholder="Select a branch...",
