@@ -1,5 +1,6 @@
 name: A CD that updates the web applications and rebuilds the docker containers.
-
+permissions:
+  contents: read
 on:
   push:
     paths:
