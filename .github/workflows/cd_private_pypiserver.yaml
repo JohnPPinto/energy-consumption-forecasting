@@ -10,6 +10,7 @@ on:
 
 env:
   CLOUD_PROJECT_ID: "${{ vars.CLOUD_PROJECT_ID }}"
+  CLOUD_VM_USER: "${{ vars.CLOUD_VM_USER }}"
   CLOUD_ML_INSTANCE_NAME: "${{ vars.CLOUD_ML_INSTANCE_NAME }}"
   CLOUD_ML_ZONE: "${{ vars.CLOUD_ML_ZONE }}"
 
@@ -29,6 +30,7 @@ jobs:
         uses: "google-github-actions/ssh-compute@v1"
         with:
           project_id: "${{ env.CLOUD_PROJECT_ID }}"
+          user: "${{ env.CLOUD_VM_USER }}"
           instance_name: "${{ env.CLOUD_ML_INSTANCE_NAME }}"
           zone: "${{ env.CLOUD_ML_ZONE }}"
           ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
