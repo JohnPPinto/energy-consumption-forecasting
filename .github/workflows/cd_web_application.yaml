@@ -1,6 +1,5 @@
 name: A CD that updates the web applications and rebuilds the docker containers.
-permissions:
-  contents: read
+
 on:
   push:
     paths:
@@ -20,7 +19,7 @@ jobs:
     name: Update Web Applications
     runs-on: ubuntu-latest
     steps:
-      - uses: "action/checkout@v4"
+      - uses: "actions/checkout@v4"
 
       - id: "auth"
         uses: "google-github-actions/auth@v2"

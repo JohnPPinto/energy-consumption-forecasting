@@ -1,6 +1,5 @@
 name: A CD that builds the package and pushes it to private pypiserver and following this airflow installs the latest version durning the DAGs run.
-permissions:
-  contents: read
+
 on:
   push:
     paths:
@@ -20,7 +19,7 @@ jobs:
     name: Publish to Private PyPI Job
     runs-on: ubuntu-latest
     steps:
-      - uses: "action/checkout@v4"
+      - uses: "actions/checkout@v4"
 
       - id: "auth"
         uses: "google-github-actions/auth@v2"
