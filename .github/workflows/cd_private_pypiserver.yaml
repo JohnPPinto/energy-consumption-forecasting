@@ -2,7 +2,7 @@ name: A CD that builds the package and pushes it to private pypiserver and follo
 on:
   push:
     paths:
-      - "energy_consumption_forecasting/"
+      - "energy_consumption_forecasting/**"
       - "poetry.lock"
       - "pyproject.toml"
     branches:
