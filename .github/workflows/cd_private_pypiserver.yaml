@@ -1,0 +1,40 @@
+name: A CD that builds the package and pushes it to private pypiserver and following this airflow installs the latest version durning the DAGs run.
+
+on:
+  push:
+    paths:
+      - "energy_consumption_forecasting/"
+      - "poetry.lock"
+      - "pyproject.toml"
+    branches:
+      - main
+
+env:
+  CLOUD_PROJECT_ID: "${{ vars.CLOUD_PROJECT_ID }}"
+  CLOUD_ML_INSTANCE_NAME: "${{ vars.CLOUD_ML_INSTANCE_NAME }}"
+  CLOUD_ML_ZONE: "${{ vars.CLOUD_ML_ZONE }}"
+
+jobs:
+  cd_publish_job:
+    name: Publish to Private PyPI Job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "action/checkout@v4"
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.CLOUD_CREDENTIALS }}"
+
+      - id: "compute-ssh"
+        uses: "google-github-actions/ssh-compute@v1"
+        with:
+          project_id: "${{ env.CLOUD_PROJECT_ID }}"
+          instance_name: "${{ env.CLOUD_ML_INSTANCE_NAME }}"
+          zone: "${{ env.CLOUD_ML_ZONE }}"
+          ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
+          command: >
+            cd ~/energy-consumption-forecasting &&
+            git pull &&
+            poetry build &&
+            poetry publish -r my-pypi
