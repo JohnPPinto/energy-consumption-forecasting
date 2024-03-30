@@ -3,7 +3,7 @@ name: A CD that updates the web applications and rebuilds the docker containers.
 on:
   push:
     paths:
-      - "app/"
+      - "app/**"
       - "poetry.lock"
       - "pyproject.toml"
     branches:
