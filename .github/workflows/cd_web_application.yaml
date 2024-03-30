@@ -19,6 +19,8 @@ jobs:
   cd_update_web_app:
     name: Update Web Applications
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: 'actions/checkout@v4'
 
