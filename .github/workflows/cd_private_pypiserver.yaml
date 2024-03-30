@@ -1,6 +1,4 @@
 name: A CD that builds the package and pushes it to private pypiserver and following this airflow installs the latest version durning the DAGs run.
-permissions:
-  contents: read
 on:
   push:
     paths:
