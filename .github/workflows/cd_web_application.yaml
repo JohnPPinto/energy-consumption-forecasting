@@ -17,10 +17,23 @@ jobs:
   cd_update_web_app:
     name: Update Web Applications
     runs-on: ubuntu-latest
-
     steps:
-      - name: Starting Workflow
-        run: echo "Starting my first job"
+      - uses: actions/checkout@v4
 
-      - name: Checkout the repo
-        uses: actions/checkout@v4
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.CLOUD_CREDENTIALS }}"
+
+      - id: "compute-ssh"
+        uses: "google-github-actions/ssh-compute@v1"
+        with:
+          project_id: "${{ env.CLOUD_PROJECT_ID }}"
+          instance_name: "${{ env.CLOUD_APP_INSTANCE_NAME }}"
+          zone: "${{ env.CLOUD_APP_ZONE }}"
+          ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
+          command: >
+            cd ~/energy-consumption-forecasting &&
+            git pull &&
+            cd app &&
+            docker compose up --build -d
