@@ -1,0 +1,38 @@
+name: test
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CLOUD_PROJECT_ID: "${{ vars.CLOUD_PROJECT_ID }}"
+  CLOUD_VM_USER: "${{ vars.CLOUD_VM_USER }}"
+  CLOUD_ML_INSTANCE_NAME: "${{ vars.CLOUD_ML_INSTANCE_NAME }}"
+  CLOUD_ML_ZONE: "${{ vars.CLOUD_ML_ZONE }}"
+
+jobs:
+  cd_publish_job:
+    name: Publish to Private PyPI Job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.CLOUD_CREDENTIALS }}"
+
+      - id: "compute-ssh"
+        uses: "google-github-actions/ssh-compute@v1"
+        with:
+          project_id: "${{ env.CLOUD_PROJECT_ID }}"
+          user: "${{ env.CLOUD_VM_USER }}"
+          instance_name: "${{ env.CLOUD_ML_INSTANCE_NAME }}"
+          zone: "${{ env.CLOUD_ML_ZONE }}"
+          ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
+          command: >
+            cd ~/energy-consumption-forecasting &&
+            echo $(ls -la) &&
+            echo $(poetry --version) &&
+            echo $(poetry) &&
+            poetry --version
