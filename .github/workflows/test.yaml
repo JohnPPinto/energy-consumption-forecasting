@@ -32,6 +32,7 @@ jobs:
           ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
           command: >
             cd ~/energy-consumption-forecasting &&
+            sh &&
             echo $(ls -la) &&
             echo $(poetry --version) &&
             echo $(poetry) &&
