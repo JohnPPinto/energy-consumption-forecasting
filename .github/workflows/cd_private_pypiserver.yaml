@@ -35,6 +35,7 @@ jobs:
           zone: "${{ env.CLOUD_ML_ZONE }}"
           ssh_private_key: "${{ secrets.CLOUD_SSH_PRIVATE_KEY }}"
           command: >
+            export PATH="/home/${{ env.CLOUD_VM_USER }}/.local/bin:$PATH" &&
             cd ~/energy-consumption-forecasting &&
             git pull &&
             poetry build &&
