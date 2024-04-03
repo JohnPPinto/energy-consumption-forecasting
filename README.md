@@ -53,13 +53,13 @@ Denmark, known for its commitment to renewable energy, particularly wind, solar,
 Note: The project is dependent on environment variables and secret JSON files. You can find the environment file format named `.env.format` and the JSON files are provided by GCP service accounts.
 These files need to be in two directories, for airflow:
 ```
-secrets\airflow\airflow.env
-secrets\airflow\service_account_key.json
+secrets/airflow/airflow.env
+secrets/airflow/service_account_key.json
 ```
 and for web applications:
 ```
-app\secrets\app\app.env
-app\secrets\app\service_account_key.json
+app/secrets/app/app.env
+app/secrets/app/service_account_key.json
 ```
 
 ### Feature Pipeline
