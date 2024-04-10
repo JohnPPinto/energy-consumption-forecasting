@@ -1,4 +1,4 @@
-# Denamrks Energy Consumption Forecasting
+# Denmark's Energy Consumption Forecasting
 
 Click the following options to see it in action:
 * [Web Application](http://34.93.41.229:8501/)
@@ -38,13 +38,13 @@ Denmark, known for its commitment to renewable energy, particularly wind, solar,
   5. **Optuna** - Hyperparameter tuning
   6. **Weights and Biases** - Experiment tracking and model registry
   7. **Hopsworks.ai** - Feature store and Model registry
-  8. **Google Cloud Platform** - Cloud storage and Virtual machine
+  8. **Google Cloud Platform** - Cloud Storage and Virtual machine
   9. **PyPIserver** - Private PyPI server
   10. **Apache Airflow** - ML workflow management
   11. **FastAPI** - Backend server API
   12. **Streamlit** - Web application deployment
   13. **Docker** - Containerize Airflow and Web applications
-  14. **Github Actions** - Continous deployment
+  14. **GitHub Actions** - Continuous deployment
 * **Workflow:** The project follows an end-to-end MLOps pipeline, encompassing data collection, preprocessing, feature engineering, model training, deployment, and monitoring. Each stage is meticulously designed to ensure the robustness, scalability, and maintainability of the solution.
 
 ## Project Structure
@@ -163,7 +163,7 @@ A virtual machine instance will be created on Google Compute Engine, this virtua
 While creating the firewall rule, three steps are important, first, the target tags need to be mentioned in my case I kept it "ecf-ports", second the source filter sets the IPv4 range with the localhost i.e. 0.0.0.0/0 and the last is setting the TCP ports mentioned above.
 
 2. Creating a Firewall Rule - IAP for TCP Tunneling \
-&emsp; In this step, the same method as before is used here, but the only difference is that GCP uses Identity-Aware Proxy(IAP) a zero trust model for accessing Virtual Machine. \
+&emsp; In this step, the same method as before is used here, but the only difference is that GCP uses an Identity-Aware Proxy(IAP) a zero trust model for accessing Virtual Machine. \
 Similar to above, the three steps to be done are, first setting the targets to "All instances in the network", second the source filter sets the IPv4 range at 35.235.240.0/20 and the last is setting the TCP ports at 22 for SSH and 3389 for RDP.
 
 3. Service Account for Virtual Machine \
@@ -171,7 +171,7 @@ Similar to above, the three steps to be done are, first setting the targets to "
    1. Compute Instance Admin (v1) - This gives admin access to Compute Engine
    2. IAP-secured Tunnel User - This gives resource access through IAP
    3. Service Account Token Creator - Impersonate service accounts for creating authentication tokens
-   4. Service Account User - This allows to run service account operations
+   4. Service Account User - This allows the running of service account operations
 
 &emsp; Once the account is created, generate a JSON key and keep it in a save location for later use.
 
@@ -203,13 +203,15 @@ gcloud compute scp --recurse --zone=ZONE --quiet --tunnel-through-iap --project=
 ```
 Once all the files are present in the project directory, you can start the docker procedure for deploying the Apache airflow to run the ML pipeline and access the Airflow UI using the external IP address provided by the GCP compute engine VM instance and remember that port 8080 is for airflow UI and 8000 is for PyPIserver for hosting the packages.
 
+Note: Before beginning with the installation of Airflow through Docker Compose, airflow needs the user ID of the system, if this is not provided then the installation is done with root user ownership which does not allow access, so to make sure we have access run this command ```export AIRFLOW_UID=$(id -u)```
+
 ### Deploying Web Application
 Deploying the Web Application is similar to the above deployment of Apache Airflow.\
 Connect to the VM using the SSH command, and install all the necessary tools like git and docker. Then copy the sensitive files using the SCP command. \
 Run the web application docker command to build and run the docker image and then access the frontend, monitoring, and backend UI using the external IP address along with the respective port.
 
 ### Continuous Deployment
-The continuous deployment is performed by utilizing a tool called Github Actions. Github Actions automates the process of uploading the project code to the private PyPI server through SSHing the GCP virtual machine instance, along with this it also automates the process of updating the airflow and web application code in the virtual machine.
+The continuous deployment is performed by utilizing a tool called GitHub Actions. GitHub Actions automates the process of uploading the project code to the private PyPI server through SSHing the GCP virtual machine instance, along with this it also automates the process of updating the airflow and web application code in the virtual machine.
 
 ## Conclusion
 This project showcases the implementation of an MLOps workflow for electricity consumption forecasting in Denmark. By focusing on workflow design and integration, the project demonstrates the importance of robust deployment and monitoring practices in real-world applications. Future efforts may involve refining the workflow, applying DRY principles, exploring additional modeling techniques, and enhancing monitoring capabilities to further improve forecast accuracy and reliability.
